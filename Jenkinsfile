@@ -24,13 +24,13 @@ pipeline {
         }
 
 
-        stage('Docker-deploy') {
+        stage('Docker') {
             steps {
                 sh 'scripts/docker.sh'
             }
         }
 
-        stage('Kubernetes-deploy') {
+        stage('Kubernetes') {
             steps {
                 sh 'scripts/k8s.sh'
             }

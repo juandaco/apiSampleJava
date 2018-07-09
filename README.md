@@ -17,7 +17,7 @@ Create a jenkins pipeline of type Github/SCM pointing to this repo or a fork of 
 Specify Jenkinsfile as build script.
 
 Run the build and watch the pipeline thus :
-Build --> Test --> Deliver --> Docker-deploy --> Kubernetes-deploy
+Build --> Test --> Deliver --> Docker --> Kubernetes
 
 
 Bonus
