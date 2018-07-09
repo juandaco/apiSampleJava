@@ -10,5 +10,24 @@ This demo is a demonstration of "everything as code" Devops automated system usi
 7) CD - Kubernetes
 
 
+Make sure Jenkins, Kubernetes and docker are installed on the Production environment.
+You shold have access to jenkins dashboard to create the pipeline.
+Install git, java and maven on your development box. 
+Create a jenkins pipeline of type Github/SCM pointing to this repo or a fork of it.
+Specify Jenkinsfile as build script.
+
+Run the build and watch the pipeline thus :
+Build --> Test --> Deliver --> Docker-deploy --> Kubernetes-deploy
+
+
+Bonus
+*******
+Create a github "push" webhook pointing to your jenkins host , make changes , push to the repo and
+watch the build run automatically.
+
+**Your jenkins host might internet access to be reachable by github webhook events. 
+
+
 TODO
+*******
 Configure monitorization and log processing
