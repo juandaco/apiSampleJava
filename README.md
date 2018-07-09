@@ -29,28 +29,35 @@ watch the build run automatically.
 
 
 
-VERIFY
-@@@@@@@@@@@
+*****************Verify in Kubernetes***************************************************8
+
 
 :~$ kubectl get pods
+*******************************************************************************************
 NAME                              READY     STATUS      RESTARTS   AGE
 jenkinstest-pod-9945cbff4-bkcfv   0/1       Completed   3          59s
 jenkinstest-pod-9945cbff4-jpbsw   0/1       Completed   3          59s
 jenkinstest-pod-9945cbff4-rchs4   0/1       Completed   3          59s
 
 :~$ kubectl get svc
+********************************************************************************************
 NAME              TYPE           CLUSTER-IP      EXTERNAL-IP   PORT(S)        AGE
 jenkinstest-svc   LoadBalancer   10.102.74.122   <pending>     80:31359/TCP   1m
-kubernetes        ClusterIP      10.96.0.1       <none>        443/TCP        76d
+
 
 :~$ kubectl get deployment
+***********************************************************************************************
 NAME              DESIRED   CURRENT   UP-TO-DATE   AVAILABLE   AGE
 jenkinstest-pod   3         3         3            0           1m
 
-:~$ kubectl get svc
-NAME              TYPE           CLUSTER-IP      EXTERNAL-IP   PORT(S)        AGE
-jenkinstest-svc   LoadBalancer   10.102.74.122   <pending>     80:31359/TCP   1m
-kubernetes        ClusterIP      10.96.0.1       <none>        443/TCP        76d
+:~$ kubectl delete deployment jenkinstest-pod
+*********************************************************************************************
+deployment.extensions "jenkinstest-pod" deleted
+
+
+:~$ kubectl delete svc jenkinstest-svc
+**************************************************************************************
+service "jenkinstest-svc" deleted
 
 
 TODO
