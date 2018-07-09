@@ -23,15 +23,15 @@ Run the build and watch the pipeline thus :
 Build --> Test --> Deliver --> Docker --> Kubernetes
 
 
-#Bonus
 *******
+#Bonus
 Create a github "push" webhook pointing to your jenkins host , make changes , push to the repo and
 watch the build run automatically.
 
 **Your jenkins host might internet access to be reachable by github webhook events. 
 
 
-
+*******
 #Verify in Kuberne8es
 
 
