@@ -1,6 +1,6 @@
 #BUILD IMAGE
 FROM openjdk:8-jre-alpine
-MAINTAINER jnmaju
+LABEL MAINTAINER=juandacorias@gmail.com
 COPY ./target/*.jar /app.jar
 CMD ["java","-jar","app.jar"]
 
