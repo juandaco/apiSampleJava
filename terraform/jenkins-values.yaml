@@ -1,0 +1,20 @@
+controller:
+  podSecurityContextOverride:
+    runAsUser: 1000
+    runAsGroup: 1000
+    runAsNonRoot: true
+    fsGroup: 1000
+    fsGroupChangePolicy: 'OnRootMismatch'
+  ingress:
+    enabled: true
+    apiVersion: networking.k8s.io/v1
+    annotations:
+      cert-manager.io/cluster-issuer: letsencrypt-prod
+      kubernetes.io/ingress.allow-http: 'false'
+    ingressClassName: nginx
+    path: /
+    hostName: jenkins.skylurker.art
+    tls:
+      - secretName: jenkins-tls
+        hosts:
+          - jenkins.skylurker.art
