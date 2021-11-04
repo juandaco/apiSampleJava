@@ -62,15 +62,21 @@ pipeline {
     string(name: 'DOCKER_REPOSITORY', defaultValue: 'juandaco', description: 'Docker repo name.')
     string(name: 'DOCKER_IMAGE', defaultValue: 'sre-challenge', description: 'Docker image name.')
     choice(name: 'TRIVY_SCAN_TYPE', choices: ['library', 'os,library'], description: 'library: only application code.\nos,library: application and os.')
+    string(name: 'DOMAIN', defaultValue: 'skylurker.art', description: 'Root domain to be used for the application.')
+  }
+
+  environment {
+    NAMESPACE = """${sh(
+      returnStdout: true,
+      script: 'if [ "$BRANCH_NAME" = "master" ]; then echo "prod"; elif [ "$BRANCH_NAME" = "stage" ]; then  echo "stage"; elif [ "$BRANCH_NAME" = "develop" ]; then echo "dev"; fi'
+    )}"""
+    PROJECT_NAME = """${sh(
+      returnStdout: true,
+      script: 'echo ${JOB_NAME%%/*}'
+    )}"""
   }
 
   stages {
-    stage('SCM Checkout') {
-      steps {
-        sh 'echo Checking out git repo...'
-        git branch: "${env.BRANCH_NAME}", url: 'https://github.com/juandaco/apiSampleJava.git'
-      }
-    }
     stage('Build') {
       steps {
         container('maven') {
@@ -122,29 +128,27 @@ pipeline {
     stage('Docker build') {
       steps {
         container('kaniko') {
-          sh '/kaniko/executor -f `pwd`/Dockerfile -c `pwd` --cache=true --destination="$DOCKER_REPOSITORY/$DOCKER_IMAGE:$BUILD_NUMBER"'
+          sh '/kaniko/executor -f `pwd`/Dockerfile -c `pwd` --cache=true --destination="$DOCKER_REPOSITORY/$DOCKER_IMAGE:$NAMESPACE-$BUILD_NUMBER"'
         }
       }
     }
     stage('Image security test') {
       steps {
         container('trivy') {
-          sh 'trivy image --severity HIGH,CRITICAL --exit-code=1 --vuln-type "$TRIVY_SCAN_TYPE" "$DOCKER_REPOSITORY/$DOCKER_IMAGE:$BUILD_NUMBER"'
+          sh 'trivy image --severity HIGH,CRITICAL --exit-code=1 --vuln-type "$TRIVY_SCAN_TYPE" "$DOCKER_REPOSITORY/$DOCKER_IMAGE:$NAMESPACE-$BUILD_NUMBER"'
         }
       }
     }
     stage('Helm deploy') {
       environment {
-        NAMESPACE = """${sh(
+        SUBDOMAIN = """${sh(
           returnStdout: true,
-          script: 'if [ "$BRANCH_NAME" = "master" ]; then echo "prod"; elif [ "$BRANCH_NAME" = "stage" ]; then  echo "stage"; elif [ "$BRANCH_NAME" = "develop" ]; then echo "dev"; fi'
+          script: 'if [ "$NAMESPACE" = "prod" ]; then echo "$PROJECT_NAME.$DOMAIN"; else echo "$PROJECT_NAME-$NAMESPACE.$DOMAIN"; fi'
         )}"""
       }
       steps {
         container('helm') {
-          sh 'echo $NAMESPACE'
-          sh 'echo $JOB_NAME'
-          // sh 'helm upgrade --namespace $NAMESPACE --values helm/values.yaml --set fullnameOverride=$image. --wait --atomic $JOB_BASE_NAME'
+          sh 'helm upgrade --namespace $NAMESPACE --values helm/values.yaml --set fullnameOverride=$PROJECT_NAME,image.registry="$DOCKER_REPOSITORY/$DOCKER_IMAGE",image.tag="$NAMESPACE-$BUILD_NUMBER,ingress.hosts[0].jost=$SUBDOMAIN,ingress.tls[0].hosts[0]=$SUBDOMAIN" --wait --atomic $PROJECT_NAME ./helm'
         }
       }
     }
