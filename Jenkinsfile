@@ -128,14 +128,14 @@ pipeline {
     stage('Docker build') {
       steps {
         container('kaniko') {
-          sh '/kaniko/executor -f `pwd`/Dockerfile -c `pwd` --cache=true --destination="$DOCKER_REPOSITORY/$DOCKER_IMAGE:$NAMESPACE-$BUILD_NUMBER"'
+          sh '/kaniko/executor -f `pwd`/Dockerfile -c `pwd` --cache=true --destination="$DOCKER_REPOSITORY"/"$DOCKER_IMAGE":"$NAMESPACE"-"$BUILD_NUMBER"'
         }
       }
     }
     stage('Image security test') {
       steps {
         container('trivy') {
-          sh 'trivy image --severity HIGH,CRITICAL --exit-code=1 --vuln-type "$TRIVY_SCAN_TYPE" "$DOCKER_REPOSITORY/$DOCKER_IMAGE:$NAMESPACE-$BUILD_NUMBER"'
+          sh 'trivy image --severity HIGH,CRITICAL --exit-code=1 --vuln-type "$TRIVY_SCAN_TYPE" "$DOCKER_REPOSITORY"/"$DOCKER_IMAGE":"$NAMESPACE"-"$BUILD_NUMBER"'
         }
       }
     }
@@ -143,12 +143,12 @@ pipeline {
       environment {
         SUBDOMAIN = """${sh(
           returnStdout: true,
-          script: 'if [ "$NAMESPACE" = "prod" ]; then echo "$PROJECT_NAME.$DOMAIN"; else echo "$PROJECT_NAME-$NAMESPACE.$DOMAIN"; fi'
+          script: 'if [ "$NAMESPACE" = "prod" ]; then echo "$PROJECT_NAME"."$DOMAIN"; else echo "$PROJECT_NAME"-"$NAMESPACE"."$DOMAIN"; fi'
         )}"""
       }
       steps {
         container('helm') {
-          sh 'helm upgrade --namespace $NAMESPACE --values helm/values.yaml --set fullnameOverride=$PROJECT_NAME,image.registry="$DOCKER_REPOSITORY/$DOCKER_IMAGE",image.tag="$NAMESPACE-$BUILD_NUMBER,ingress.hosts[0].jost=$SUBDOMAIN,ingress.tls[0].hosts[0]=$SUBDOMAIN" --wait --atomic $PROJECT_NAME ./helm'
+          sh 'helm upgrade --namespace $NAMESPACE --values helm/values.yaml --set fullnameOverride=$PROJECT_NAME,image.registry="$DOCKER_REPOSITORY"/"$DOCKER_IMAGE",image.tag="$NAMESPACE"-"$BUILD_NUMBER",ingress.hosts[0].jost="$SUBDOMAIN",ingress.tls[0].hosts[0]="$SUBDOMAIN" --wait --atomic "$PROJECT_NAME" ./helm'
         }
       }
     }
