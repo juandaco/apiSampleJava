@@ -134,11 +134,16 @@ pipeline {
       }
     }
     stage('Helm deploy') {
+      environment {
+        NAMESPACE = """${sh(
+          returnStdout: true,
+          script: 'if [[ $BRANCH_NAME == "master" ]]; then echo "prod"; else echo "$BRANCH_NAME"; fi'
+        )}"""
+      }
       steps {
         container('helm') {
-          sh 'if [[ $BRANCH_NAME == "master" ]]; then export NAMESPACE=prod; else export NAMESPACE=$BRANCH_NAME; fi'
           sh 'echo $NAMESPACE'
-          sh 'echo $JOB_BASE'
+          sh 'echo $JOB_BASE_NAME'
           // sh 'helm upgrade --namespace $NAMESPACE --values helm/values.yaml --set fullnameOverride=$image. --wait --atomic $JOB_BASE_NAME'
         }
       }
