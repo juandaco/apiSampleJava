@@ -86,3 +86,9 @@ resource "helm_release" "jenkins" {
     kubectl_manifest.cluster-issuer-crd
   ]
 }
+resource "kubectl_manifest" "jenkins-cluster-role" {
+  yaml_body = file("${path.module}/jenkins-cluster-role.yaml")
+  depends_on = [
+    helm_release.jenkins
+  ]
+}

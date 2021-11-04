@@ -148,7 +148,7 @@ pipeline {
       }
       steps {
         container('helm') {
-          sh 'helm upgrade --namespace $NAMESPACE --values helm/values.yaml --set fullnameOverride=$PROJECT_NAME,image.registry="$DOCKER_REPOSITORY"/"$DOCKER_IMAGE",image.tag="$NAMESPACE"-"$BUILD_NUMBER",ingress.hosts[0].jost="$SUBDOMAIN",ingress.tls[0].hosts[0]="$SUBDOMAIN" --wait --atomic "$PROJECT_NAME" ./helm'
+          sh 'helm upgrade --namespace $NAMESPACE --install --values helm/values.yaml --set fullnameOverride=$PROJECT_NAME,image.registry="$DOCKER_REPOSITORY"/"$DOCKER_IMAGE",image.tag="$NAMESPACE"-"$BUILD_NUMBER",ingress.hosts[0].jost="$SUBDOMAIN",ingress.tls[0].hosts[0]="$SUBDOMAIN" --wait --atomic "$PROJECT_NAME" ./helm'
         }
       }
     }
