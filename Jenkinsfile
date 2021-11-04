@@ -65,6 +65,12 @@ pipeline {
   }
 
   stages {
+    stage('SCM Checkout') {
+      steps {
+        sh 'echo Checking out git repo...'
+        git branch: "${env.BRANCH_NAME}", url: 'https://github.com/juandaco/apiSampleJava.git'
+      }
+    }
     stage('Build') {
       steps {
         container('maven') {
@@ -130,10 +136,10 @@ pipeline {
     stage('Helm deploy') {
       steps {
         container('helm') {
-          sh 'if [[ $GIT_BRANCH == "master" ]]; then NAMESPACE=prod; else NAMESPACE=$GIT_BRANCH; fi'
+          sh 'if [[ $BRANCH_NAME == "master" ]]; then export NAMESPACE=prod; else export NAMESPACE=$BRANCH_NAME; fi'
           sh 'echo $NAMESPACE'
-          // helm upgrade --namespace dev --install --values /home/vsts/work/1/ContinuousIntegration/values.yaml --set devops.app.env=dev,devops.app.name=beer-ambassador-front,devops.image.registry=crtechpeople.azurecr.io,devops.image.tag=1318519 --wait --atomic beer-ambassador-front
-          // sh 'helm upgrade --namespace $NAMESPACE --values helm/values.yaml --set fullnameOverride=$,image.'
+          sh 'echo $JOB_BASE'
+          // sh 'helm upgrade --namespace $NAMESPACE --values helm/values.yaml --set fullnameOverride=$image. --wait --atomic $JOB_BASE_NAME'
         }
       }
     }
