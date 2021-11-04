@@ -26,6 +26,8 @@ rules:
   - jobs
   - endpoints
   - deployments
+  - horizontalpodautoscalers
+  - ingresses
   - deployments/scale
   - daemonsets
   - cronjobs
