@@ -137,13 +137,13 @@ pipeline {
       environment {
         NAMESPACE = """${sh(
           returnStdout: true,
-          script: 'if [[ $BRANCH_NAME == "master" ]]; then echo "prod"; else echo "$BRANCH_NAME"; fi'
+          script: 'if [ "$BRANCH_NAME" = "master" ]; then echo "prod"; elif [ "$BRANCH_NAME" = "stage" ]; then  echo "stage"; elif [ "$BRANCH_NAME" = "develop" ]; then echo "dev"; fi'
         )}"""
       }
       steps {
         container('helm') {
           sh 'echo $NAMESPACE'
-          sh 'echo $JOB_BASE_NAME'
+          sh 'echo $JOB_NAME'
           // sh 'helm upgrade --namespace $NAMESPACE --values helm/values.yaml --set fullnameOverride=$image. --wait --atomic $JOB_BASE_NAME'
         }
       }
