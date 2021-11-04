@@ -65,12 +65,6 @@ pipeline {
   }
 
   stages {
-    stage('SCM Checkout') {
-      steps {
-        sh 'echo Checking out git repo...'
-        git branch: "${env.GIT_BRANCH}", url: 'https://github.com/juandaco/apiSampleJava.git'
-      }
-    }
     stage('Build') {
       steps {
         container('maven') {
