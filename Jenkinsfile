@@ -68,11 +68,11 @@ pipeline {
   environment {
     NAMESPACE = """${sh(
       returnStdout: true,
-      script: 'if [ "$BRANCH_NAME" = "master" ]; then echo "prod"; elif [ "$BRANCH_NAME" = "stage" ]; then  echo "stage"; elif [ "$BRANCH_NAME" = "develop" ]; then echo "dev"; fi'
+      script: 'if [ "$BRANCH_NAME" = "master" ]; then echo -n "prod"; elif [ "$BRANCH_NAME" = "stage" ]; then echo -n "stage"; elif [ "$BRANCH_NAME" = "develop" ]; then echo -n "dev"; fi'
     )}"""
     PROJECT_NAME = """${sh(
       returnStdout: true,
-      script: 'echo ${JOB_NAME%%/*}'
+      script: 'echo -n ${JOB_NAME%%/*}'
     )}"""
   }
 
@@ -143,7 +143,7 @@ pipeline {
       environment {
         SUBDOMAIN = """${sh(
           returnStdout: true,
-          script: 'if [ "$NAMESPACE" = "prod" ]; then echo "$PROJECT_NAME"."$DOMAIN"; else echo "$PROJECT_NAME"-"$NAMESPACE"."$DOMAIN"; fi'
+          script: 'if [ "$NAMESPACE" = "prod" ]; then echo -n "$PROJECT_NAME"."$DOMAIN"; else echo -n "$PROJECT_NAME"-"$NAMESPACE"."$DOMAIN"; fi'
         )}"""
       }
       steps {
