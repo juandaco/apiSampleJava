@@ -60,12 +60,15 @@ resource "helm_release" "cert-manager" {
     name  = "installCRDs"
     value = true
   }
+  depends_on = [
+    helm_release.nginx_ingress
+  ]
 }
 resource "kubectl_manifest" "cluster-issuer-crd" {
+  yaml_body = file("${path.module}/cluster-issuer.yaml")
   depends_on = [
     helm_release.cert-manager
   ]
-  yaml_body = file("${path.module}/cluster-issuer.yaml")
 }
 
 # Jenkins
@@ -78,5 +81,8 @@ resource "helm_release" "jenkins" {
   create_namespace = true
   values = [
     file("${path.module}/jenkins-values.yaml")
+  ]
+  depends_on = [
+    kubectl_manifest.cluster-issuer-crd
   ]
 }
