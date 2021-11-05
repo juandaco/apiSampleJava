@@ -20,3 +20,8 @@
   echo "Visit http://127.0.0.1:8080 to use your application"
   kubectl --namespace {{ .Release.Namespace }} port-forward $POD_NAME 8080:$CONTAINER_PORT
 {{- end }}
+2. These were the resources deployed:
+kubectl --namespace {{ .Release.Namespace }} get pod {{ include "helm.fullname" }}
+kubectl --namespace {{ .Release.Namespace }} get deploy {{ include "helm.fullname" }}
+kubectl --namespace {{ .Release.Namespace }} get svc {{ include "helm.fullname" }}
+kubectl --namespace {{ .Release.Namespace }} get ingress {{ include "helm.fullname" }}
