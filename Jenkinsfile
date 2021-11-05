@@ -68,7 +68,7 @@ pipeline {
   environment {
     NAMESPACE = """${sh(
       returnStdout: true,
-      script: 'if [ "$BRANCH_NAME" = "master" ]; then echo -n "prod"; elif [ "$BRANCH_NAME" = "stage" ]; then echo -n "stage"; elif [ "$BRANCH_NAME" = "develop" ]; then echo -n "dev"; else echo -n "$BRANCH_NAME"-"$BUILD_ID"; fi'
+      script: 'if [ "$BRANCH_NAME" = "master" ]; then echo -n "prod"; elif [ "$BRANCH_NAME" = "stage" ]; then echo -n "stage"; elif [ "$BRANCH_NAME" = "develop" ]; then echo -n "dev"; else echo -n "integration"; fi'
     )}"""
     PROJECT_NAME = """${sh(
       returnStdout: true,
