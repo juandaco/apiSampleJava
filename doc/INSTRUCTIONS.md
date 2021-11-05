@@ -11,7 +11,7 @@
 
 ## Deployment
 
-1. Run the deployment script.
+1. Run the deployment script from the root of the project.
     ```bash
     # Make the script executable
     chmod u+x ./deploy
@@ -26,7 +26,7 @@
         kubectl get svc -A | grep LoadBalancer
         ```
 
-    - Configure the DNS with CNAME or A records to point to Jenkins installation
+    - Configure the DNS with CNAME or A records to point to Jenkins installation.
 
 1. Get credentials for Jenkins admin user from deployment script output or running:
     ```bash
@@ -34,7 +34,8 @@
     ```
 
 1. Access Jenkins and setup projects:
-    1. Create project `adidas-sre-challenge`
+    1. Create project `adidas-sre-challenge` pointing to the repository.
     1. Setup credentials for:
-        - `SONAR_TOKEN`
-        - `SNYK_TOKEN`
+        - `SONAR_TOKEN` -> Generated in https://sonarcloud.io/account/security
+        - `SNYK_TOKEN` -> Found in Account Settings
+    1. Configure project parameters.

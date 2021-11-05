@@ -92,3 +92,9 @@ resource "kubectl_manifest" "jenkins-cluster-role" {
     helm_release.jenkins
   ]
 }
+resource "kubectl_manifest" "jenkins-cluster-role-binding" {
+  yaml_body = file("${path.module}/jenkins-cluster-role-binding.yaml")
+  depends_on = [
+    kubectl_manifest.jenkins-cluster-role
+  ]
+}

@@ -68,7 +68,7 @@ pipeline {
   environment {
     NAMESPACE = """${sh(
       returnStdout: true,
-      script: 'if [ "$BRANCH_NAME" = "master" ]; then echo -n "prod"; elif [ "$BRANCH_NAME" = "stage" ]; then echo -n "stage"; elif [ "$BRANCH_NAME" = "develop" ]; then echo -n "dev"; fi'
+      script: 'if [ "$BRANCH_NAME" = "master" ]; then echo -n "prod"; elif [ "$BRANCH_NAME" = "stage" ]; then echo -n "stage"; elif [ "$BRANCH_NAME" = "develop" ]; then echo -n "dev"; else echo -n "$BRANCH_NAME"-"$BUILD_ID"; fi'
     )}"""
     PROJECT_NAME = """${sh(
       returnStdout: true,
@@ -93,6 +93,13 @@ pipeline {
             }
           }
         }
+        stage('GitLeaks') {
+          steps {
+            container('gitleaks') {
+              sh 'gitleaks --path=./ --verbose --config-path=gitleaks.config'
+            }
+          }
+        }
         stage('SonarCloud') {
           environment {
             SONAR_TOKEN = credentials('SONAR_TOKEN')
@@ -114,15 +121,6 @@ pipeline {
             }
           }
         }
-        // SAST
-        // stage('Checkmarx') {}
-        stage('GitLeaks') {
-          steps {
-            container('gitleaks') {
-              sh 'gitleaks --path=./ -v --config-path=gitleaks.config'
-            }
-          }
-        }
       }
     }
     stage('Docker build') {
@@ -140,6 +138,11 @@ pipeline {
       }
     }
     stage('Helm deploy') {
+      when {
+        expression {
+          return env.BRANCH_NAME == 'develop' || env.BRANCH_NAME == 'stage' || env.BRANCH_NAME == 'master';
+        }
+      }
       environment {
         SUBDOMAIN = """${sh(
           returnStdout: true,
@@ -148,7 +151,7 @@ pipeline {
       }
       steps {
         container('helm') {
-          sh 'helm upgrade --namespace $NAMESPACE --install --values helm/values.yaml --set fullnameOverride=$PROJECT_NAME,image.repository="$DOCKER_REPOSITORY"/"$DOCKER_IMAGE",image.tag="$NAMESPACE"-"$BUILD_NUMBER",ingress.hosts[0].jost="$SUBDOMAIN",ingress.tls[0].hosts[0]="$SUBDOMAIN" --wait --atomic "$PROJECT_NAME" ./helm'
+          sh 'helm upgrade --namespace $NAMESPACE --install --values helm/values.yaml --set fullnameOverride=$PROJECT_NAME,image.repository="$DOCKER_REPOSITORY"/"$DOCKER_IMAGE",image.tag="$NAMESPACE"-"$BUILD_NUMBER",ingress.hosts[0].host="$SUBDOMAIN",ingress.tls[0].hosts[0]="$SUBDOMAIN",ingress.tls[0].secretName="$PROJECT_NAME" --wait --atomic "$PROJECT_NAME" ./helm'
         }
       }
     }
