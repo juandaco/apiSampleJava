@@ -101,6 +101,12 @@ pipeline {
           }
         }
         stage('SonarCloud') {
+          // Only scan long living branches
+          when {
+            expression {
+              return env.BRANCH_NAME == 'develop' || env.BRANCH_NAME == 'stage' || env.BRANCH_NAME == 'master';
+            }
+          }
           environment {
             SONAR_TOKEN = credentials('SONAR_TOKEN')
           }
@@ -138,6 +144,7 @@ pipeline {
       }
     }
     stage('Helm deploy') {
+      // Only deploy long living branches
       when {
         expression {
           return env.BRANCH_NAME == 'develop' || env.BRANCH_NAME == 'stage' || env.BRANCH_NAME == 'master';
